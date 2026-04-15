@@ -413,6 +413,7 @@ def write_worker_script(job_dir, filename, test_name, selected_gases_list, spec_
     current_gas_configs = [cfg.GAS_LIBRARY[g] for g in selected_gases_list]
     molecules_str = [g['molecule'] for g in current_gas_configs]
     gas_ids = [g['gas_id'] for g in current_gas_configs]
+    update_library = getattr(cfg, 'UPDATE_LIBRARY', True)
     cia_t_grid_policy = getattr(cfg, 'CIA_T_GRID_POLICY', 'native')
     cia_shared_t_grid = getattr(cfg, 'CIA_SHARED_T_GRID', None)
     
@@ -525,6 +526,7 @@ def write_worker_script(job_dir, filename, test_name, selected_gases_list, spec_
         f.write(f"star_name = '{cfg.STAR_NAME}'\n")
         f.write(f"root = '{cfg.ROOT_DIR}'\n")
         f.write(f"num_kterm = {cfg.NUM_KTERM}\n")
+        f.write(f"update_library = {update_library}\n")
         f.write(f"cia_t_grid_policy = '{cia_t_grid_policy}'\n")
         f.write(f"cia_shared_t_grid = {cia_shared_t_grid}\n")
         f.write(f"cia_grid_warnings = {cia_grid_warnings}\n")
@@ -557,7 +559,6 @@ def write_worker_script(job_dir, filename, test_name, selected_gases_list, spec_
 
         # --- Worker Logic ---
         f.write(r"""
-update_library = True
 output_path_list = []
 mon_path_list = []
 LbL_path_list = []
