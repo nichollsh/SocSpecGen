@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use SocSpecGen in your research, please cite this software."
+title: "SocSpecGen: custom spectral file generation scripts for SOCRATES"
+type: software
+authors:
+  - family-names: Zhan
+    given-names: Ruizhi
+repository-code: "https://github.com/ruizhizhan/SocSpecGen"
+license: MIT
+abstract: "SocSpecGen contains scripts for generating custom SOCRATES spectral files with selected molecular absorption, UV cross sections, and collision-induced absorption data."

@@ -1,0 +1,14 @@
+name: SocSpecGen
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - numpy
+  - matplotlib
+  - astropy
+  - synphot
+  - netcdf4
+  - pip
+  - pip:
+      - stsynphot
