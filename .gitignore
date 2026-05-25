@@ -23,6 +23,7 @@ slurms_backup/*
 spectral_files/*
 stellar_spectra/*
 hitran
+SOCRATES
 
 # 2. 【关键】使用 ! (非) 来强制保留目录结构中的 .gitkeep 文件
 # (** 表示递归匹配所有子目录)

@@ -1567,86 +1567,6 @@ except Exception as exc:
         )
 """)
 
-# Additional: modify H2O
-# Changed: Added job_dir parameter
-def modify_h2o_to_cfc113(job_dir, filename):
-    file_path = os.path.join(job_dir, filename)
-    # 使用原始多行字符串 (r"")，这样正则表达式里的 \s, \b 等就不会被转义
-    append_script = r"""
-
-# Post-processing: Modify H2O to CFC113 in the final spectral file
-import re
-
-if os.path.exists(outputfile):
-    with open(outputfile, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    # 1. 查找 "1 [若干空格] Water Vapour"，将 1 改为 16，Water Vapour 改为 CFC113，并保留中间的空格 (\1 代表第一个括号匹配到的空格)
-    content = re.sub(r'\b1(\s+)Water Vapour', r'16\1CFC113', content)
-    
-    # 2. 将文件中其他所有的 "Water Vapour" 修改成 "CFC113"
-    content = content.replace("Water Vapour", "CFC113")
-
-    # 3. 将 "Index of water =     1" 修改为 "Index of water =     0"
-    # 使用正则 \s* 兼容等号两边可能出现的不定数量的空格，\g<1> 代表保留前面的 "Index of water = [空格]" 部分
-    content = re.sub(r'(Index of water\s*=\s*)1\b', r'\g<1>0', content)
-
-    # 将修改后的内容写回文件
-    with open(outputfile, 'w', encoding='utf-8') as f:
-        f.write(content)
-
-    try:
-        fix_socrates_nan(outputfile)
-        validation_result = validate_final_outputs(outputfile, outputfile_k)
-        qa_summary['post_processing'] = {
-            'h2o_to_cfc113_applied': True,
-            'validator': validation_result,
-        }
-        qa_summary['validator'] = validation_result
-        write_qa_summary()
-
-        if not validation_result['passed']:
-            print(
-                "Final spectral validation failed after H2O->CFC113 post-processing: "
-                + "; ".join(validation_result['messages']),
-                file=sys.stderr,
-                flush=True,
-            )
-    except Exception as exc:
-        print(
-            f"Final H2O->CFC113 post-processing failed for {outputfile}: {exc}",
-            file=sys.stderr,
-            flush=True,
-        )
-        traceback.print_exc(file=sys.stderr)
-        qa_summary['post_processing'] = {
-            'h2o_to_cfc113_applied': True,
-            'error': str(exc),
-        }
-        qa_summary['validator'] = {
-            'passed': False,
-            'messages': [f"Final H2O->CFC113 post-processing failed: {exc}"],
-            'absorption_mismatch_count': None,
-            'absorption_mismatch_preview': [],
-        }
-        try:
-            write_qa_summary()
-        except Exception as summary_exc:
-            print(
-                f"Failed to write QA summary after H2O post-processing error: {summary_exc}",
-                file=sys.stderr,
-                flush=True,
-            )
-else:
-    print(f"File not found: {outputfile}", file=sys.stderr)
-"""
-
-    # 以追加模式('a')打开目标 .py 文件，并将代码写入到文件末尾
-    with open(file_path, 'a', encoding='utf-8') as f:
-        # 写入前先加两行换行，确保不会和原文件最后一行代码粘连
-        f.write('\n\n' + append_script)
-    print("Warning: Post-processing code to modify H2O to CFC113 has been appended to the worker script. Please ensure CFC113 in gas_list_pcf.F90 has been modified.")
-
 # ==========================================
 # 3. Slurm Script Generator 
 # ==========================================
@@ -1676,12 +1596,12 @@ def write_slurm_script(job_dir, job_name, case_name_list, gas_lbl_file_list):
         f.write(f'#SBATCH --error=error_%j.err\n')
         f.write(f'#SBATCH -N 1\n')
         f.write(f'#SBATCH -c {ncores}\n')
-        f.write(f'#SBATCH --partition=wzhcnormal\n\n')
+        # f.write(f'#SBATCH --partition=wzhcnormal\n\n')
         
         # Changed: switch into the specific job_identifier directory
         f.write(f'cd {job_dir}\n')
-        f.write('source /work/home/ac9b0k6rio/miniconda3/etc/profile.d/conda.sh\n')
-        f.write('source /work/home/ac9b0k6rio/miniconda3/bin/activate exo-k\n\n')
+        # f.write('source /work/home/ac9b0k6rio/miniconda3/etc/profile.d/conda.sh\n')
+        # f.write('source /work/home/ac9b0k6rio/miniconda3/bin/activate exo-k\n\n')
         
         for case_name in case_name_list:
             f.write(f'# Processing Case: {case_name}\n')
@@ -1720,11 +1640,6 @@ if __name__ == "__main__":
     write_worker_script(job_dir, f"{job_identifier}_lw.py", test_name, SELECTED_MOLECULES, 'lw')
     write_worker_script(job_dir, f"{job_identifier}_sw.py", test_name, SELECTED_MOLECULES, 'sw')
     
-    # if 'H2O' in SELECTED_MOLECULES, modify H2O to CFC113
-    if 'H2O' in SELECTED_MOLECULES:
-        modify_h2o_to_cfc113(job_dir, f"{job_identifier}_lw.py")
-        modify_h2o_to_cfc113(job_dir, f"{job_identifier}_sw.py")
-        
     # Generate Slurm Submission Script
     case_name_list = [job_identifier]
     gas_lbl_file_list = []
