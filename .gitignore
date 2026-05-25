@@ -8,6 +8,8 @@ __pycache__/
 util/__pycache__/
 *.py[cod]
 
+AGNI
+
 # --- 核心策略：忽略大文件夹下的所有内容，但保留 .gitkeep ---
 
 # 1. 忽略这些目录下的所有文件 (*)
@@ -20,6 +22,7 @@ slurms/*
 slurms_backup/*
 spectral_files/*
 stellar_spectra/*
+hitran
 
 # 2. 【关键】使用 ! (非) 来强制保留目录结构中的 .gitkeep 文件
 # (** 表示递归匹配所有子目录)
@@ -40,3 +43,77 @@ parse_cia.py
 *.err
 *.out
 util/backup
+
+# Socrates files
+*.mod
+*.o
+radiation_code.lock
+socrates*
+SOCRATES*
+
+# FastChem folder
+fastchem
+FastChem
+
+# Package
+deps/*.log
+test/out/
+Manifest.toml
+*.cov
+coverage.*
+
+# Docs
+docs/build
+
+# Spectral data
+*.par
+*.xsc
+*.bin
+
+# Model data
+*.zip
+res/spectral_files/*
+res/stellar_spectra/*
+res/surface_albedos/*
+res/thermodynamics/*.nc
+res/thermodynamics/*.nc.chk
+res/scattering/*
+!res/*/_readme.txt
+index.html
+
+# Output files
+scratch
+scratch/
+test/out/
+out/*
+runtime.sf
+runtime.sf_k
+socstar.dat
+slurm*.out
+slurm*.log
+sbatch*.out
+sbatch*.log
+profile_report/
+
+# Misc files
+.DS_Store
+__pycache__
+debug/
+nogit*
+.osfcli.config
+.venv
+.conda
+.ipynb_checkpoints
+zenodo.org
+zenodo.org/
+.github/badges/
+
+# RFM
+rfm
+RFM
+Rfm
+*.par
+rfm.log
+
+# Paper
+paper/main.pdf

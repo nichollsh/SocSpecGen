@@ -273,7 +273,8 @@ CIA_LIBRARY = {
 # 4. Simulation Parameters
 # ==========================================
 INCLUDE_CIA = True
-INCLUDE_SOLAR_SED = True
+INCLUDE_SOLAR_SED = False
+INCLUDE_RAYLEIGH = False
 
 # New Option: Ultra Hot Atmosphere (Calculate UV/Rayleigh for 'lw' if True)
 ULTRA_HOT_ATMOSPHERE = False 

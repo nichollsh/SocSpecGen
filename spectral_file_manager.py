@@ -532,6 +532,7 @@ def write_worker_script(job_dir, filename, test_name, selected_gases_list, spec_
         f.write(f"cia_grid_warnings = {cia_grid_warnings}\n")
         f.write(f"include_cia = {cfg.INCLUDE_CIA}\n")
         f.write(f"include_solar_sed = {cfg.INCLUDE_SOLAR_SED}\n")
+        f.write(f"include_rayleigh = {cfg.INCLUDE_RAYLEIGH}\n")
         f.write(f"ultra_hot_atmosphere = {cfg.ULTRA_HOT_ATMOSPHERE}\n")
         # add solar path
         f.write(f"solar_path = os.path.join(root, 'stellar_spectra', 'soc_in', '{cfg.STAR_NAME}')\n\n")
@@ -1466,12 +1467,14 @@ with open(exec_file_sp, "w", encoding='utf-8') as f:
     f.write(f'{skeleton_file_name}\n')
     f.write('a\n')
 
-    if spec_type == 'sw' or ultra_hot_atmosphere:
+    # rayleigh coeffs
+    if (spec_type == 'sw' or ultra_hot_atmosphere) and include_solar_sed and include_rayleigh:
         f.write('3\n')
         f.write(f'{solar_path}\n')
         f.write('C\n')
         f.write('A\n')
 
+    # esft data lw
     f.write('5\n')
     f.write(f'{output_path_list[0]}\n')
     for output_path in output_path_list[1:]:
@@ -1479,12 +1482,14 @@ with open(exec_file_sp, "w", encoding='utf-8') as f:
         f.write('y\n')
         f.write(f'{output_path}\n')
 
+    # esft data sw
     if spec_type == 'sw' or ultra_hot_atmosphere:
         for output_path_xuv in output_path_xuv_list:
             f.write('5\n')
             f.write('y\n')
             f.write(f'{output_path_xuv}\n')
 
+    # thermal source function
     if spec_type == 'lw':
         f.write('6\n')
         f.write('n\n')
@@ -1492,11 +1497,13 @@ with open(exec_file_sp, "w", encoding='utf-8') as f:
         f.write('50 4500\n')
         f.write('445\n')
 
+    # solar spectrum
     if include_solar_sed and spec_type == 'sw':
         f.write('2\n')
         f.write('n\n')
         f.write('y\n')
 
+    # cia
     if include_cia and len(generated_cia_files) > 0:
         f.write('19\n')
         f.write(f'{generated_cia_files[0]}\n')
